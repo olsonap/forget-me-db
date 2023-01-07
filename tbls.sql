@@ -1,4 +1,4 @@
-CREATE TABLE if not exists usuario (
+CREATE TABLE if not exists usuarioTbl (
     id                 serial PRIMARY KEY,
     fname              VARCHAR ( 20 ) NOT NULL,
     lname              VARCHAR ( 20 ) NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE if not exists usuario (
 );
 
 
-CREATE TABLE if not exists address (
+CREATE TABLE if not exists addressTbl (
     id                 serial PRIMARY KEY,
     line1              VARCHAR ( 46 ) NOT NULL,
     line2              VARCHAR ( 46 ),
@@ -27,14 +27,14 @@ CREATE TABLE if not exists address (
 );
 
 
-CREATE TABLE if not exists address_book (
-    user_id            serial NOT NULL REFERENCES usuario ( id ),
-    contact_id         serial NOT NULL REFERENCES usuario ( id ),
-    address_id         serial NOT NULL REFERENCES address ( id )
+CREATE TABLE if not exists addressBookTbl (
+    user_id            INT NOT NULL REFERENCES usuarioTbl ( id ),
+    contact_id         INT NOT NULL REFERENCES usuarioTbl ( id ),
+    address_id         INT NOT NULL REFERENCES addressTbl ( id )
 );
 
 
-CREATE TABLE if not exists card (
+CREATE TABLE if not exists cardTbl (
     id                 serial PRIMARY KEY,
     card_type          VARCHAR ( 2 ) NOT NULL, -- MC, VS, AX, DS, etc.
     number             VARCHAR ( 16 ) NOT NULL,
@@ -43,16 +43,16 @@ CREATE TABLE if not exists card (
 );
 
 
-CREATE TABLE if not exists wallet (
-    user_id            serial NOT NULL REFERENCES usuario ( id ),
-    address_id         serial NOT NULL REFERENCES address ( id ),
-    card_id            serial NOT NULL REFERENCES card ( id )
+CREATE TABLE if not exists walletTbl (
+    user_id            INT NOT NULL REFERENCES usuarioTbl ( id ),
+    address_id         INT NOT NULL REFERENCES addressTbl ( id ),
+    card_id            INT NOT NULL REFERENCES cardTbl ( id )
 );
 
 
 CREATE TABLE if not exists orderTbl (
     id                 serial PRIMARY KEY,
-    user_id            serial NOT NULL REFERENCES usuario(id),
+    user_id            INT NOT NULL REFERENCES usuarioTbl ( id ),
     type               VARCHAR ( 10 ) NOT NULL, -- inventory order, sale, other
     status             VARCHAR ( 10 ) NOT NULL, -- cancelled, failed (due to bad address or error), declined (payment), pending, prepared, shipped, delivered
     subtotal           FLOAT NOT NULL,
@@ -68,10 +68,10 @@ CREATE TABLE if not exists orderTbl (
 );
 
 
-CREATE TABLE if not exists transaction (
+CREATE TABLE if not exists transactionTbl (
     id                 serial PRIMARY KEY,
-    user_id            serial NOT NULL REFERENCES usuario(id),
-    order_id           serial NOT NULL REFERENCES orderTbl(id),
+    user_id            INT NOT NULL REFERENCES usuarioTbl ( id ),
+    order_id           INT NOT NULL REFERENCES orderTbl ( id ),
     type               VARCHAR ( 10 ) NOT NULL, -- inventory order, sale payment, sale refund, other?
     mode               VARCHAR ( 10 ) NOT NULL, -- CC, paypal, stripe, venmo, etc.
     status             VARCHAR ( 10 ) NOT NULL, -- new, cancelled, failed, pending, declined, complete
@@ -81,9 +81,9 @@ CREATE TABLE if not exists transaction (
 );
 
 
-CREATE TABLE if not exists item (
+CREATE TABLE if not exists itemTbl (
     id                 serial PRIMARY KEY,
-    supplier_id        serial NOT NULL REFERENCES supplier ( id ),
+    supplier_id        INT NOT NULL REFERENCES supplierTbl ( id ),
     sku                VARCHAR ( 30 ) NOT NULL,
     restock_url        VARCHAR ( 256 ) NOT NULL,
     msrp               FLOAT NOT NULL,
@@ -95,29 +95,29 @@ CREATE TABLE if not exists item (
     available          INT NOT NULL, -- total available = quantity - sold - defective
     created            TIMESTAMP NOT NULL,
     updated            TIMESTAMP,
-    updated_by         serial REFERENCES usuario ( id )
+    updated_by         INT REFERENCES usuarioTbl ( id )
 );
 
 
-CREATE TABLE if not exists order_item (
+CREATE TABLE if not exists orderItemTbl (
     id                 serial PRIMARY KEY,
-    item_id            serial NOT NULL REFERENCES item ( id ),
-    product_id         serial NOT NULL REFERENCES product ( id ),
-    order_id           serial NOT NULL REFERENCES orderTbl ( id ),
+    item_id            INT NOT NULL REFERENCES itemTbl ( id ),
+    product_id         INT NOT NULL REFERENCES productTbl ( id ),
+    order_id           INT NOT NULL REFERENCES orderTbl ( id ),
     discount           FLOAT NOT NULL,
     quantity           INT NOT NULL,
-    service_id         serial NOT NULL REFERENCES service ( id ),
-    delivery_address_id    serial NOT NULL REFERENCES address ( id ),
-    sender_address_id      serial NOT NULL REFERENCES address ( id ),
+    service_id         INT NOT NULL REFERENCES serviceTbl ( id ),
+    delivery_address_id    INT NOT NULL REFERENCES addressTbl ( id ),
+    sender_address_id      INT NOT NULL REFERENCES addressTbl ( id ),
     in_time_for        DATE NOT NULL -- This is the last acceptable delivery date
 );
 
 
-CREATE TABLE if not exists product (
+CREATE TABLE if not exists productTbl (
     id                 serial PRIMARY KEY,
-    item_id            serial NOT NULL REFERENCES item ( id ),
+    item_id            INT NOT NULL REFERENCES itemTbl ( id ),
     title              VARCHAR ( 128 ) NOT NULL,
-    category_id        serial NOT NULL REFERENCES category ( id ),
+    category_id        INT NOT NULL REFERENCES categoryTbl ( id ),
     summary            VARCHAR ( 256 ) NOT NULL,
     type               VARCHAR ( 16 ) NOT NULL,
     image_url          VARCHAR ( 256 ) NOT NULL,
@@ -128,7 +128,7 @@ CREATE TABLE if not exists product (
 );
 
 
-CREATE TABLE if not exists supplier (
+CREATE TABLE if not exists supplierTbl (
     id                 serial PRIMARY KEY,
     brand              VARCHAR ( 32 ) NOT NULL,
     supplier_url       VARCHAR ( 256 ) NOT NULL,
@@ -138,7 +138,7 @@ CREATE TABLE if not exists supplier (
 );
 
 
-CREATE TABLE if not exists service (
+CREATE TABLE if not exists serviceTbl (
     id                 serial PRIMARY KEY,
     type               VARCHAR ( 32 ) NOT NULL, -- Plotted, used extra markers, fancy stamps, etc.
     data_url           VARCHAR ( 256 ) NOT NULL,
@@ -147,8 +147,8 @@ CREATE TABLE if not exists service (
 );
 
 
-CREATE TABLE if not exists category (
+CREATE TABLE if not exists categoryTbl (
     id                 serial PRIMARY KEY,
-    parent_id          serial REFERENCES category(id),
+    parent_id          INT REFERENCES categoryTbl ( id ),
     title              VARCHAR ( 32 ) NOT NULL
 );
