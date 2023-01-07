@@ -18,7 +18,7 @@ CREATE OR REPLACE VIEW wallet AS
     SELECT * FROM walletTbl;
 
 
-CREATE OR REPLACE VIEW order AS
+CREATE OR REPLACE VIEW orders AS
     SELECT * FROM orderTbl;
 
 
