@@ -1,3 +1,6 @@
+-----------------------------------------------
+-- User-related Tables
+
 CREATE TABLE if not exists usuarioTbl (
     id                 serial PRIMARY KEY,
     fname              VARCHAR ( 20 ) NOT NULL,
@@ -49,6 +52,8 @@ CREATE TABLE if not exists walletTbl (
     card_id            INT NOT NULL REFERENCES cardTbl ( id )
 );
 
+-----------------------------------------------
+-- Order-related Tables
 
 CREATE TABLE if not exists orderTbl (
     id                 serial PRIMARY KEY,
@@ -68,6 +73,27 @@ CREATE TABLE if not exists orderTbl (
 );
 
 
+CREATE TABLE if not exists orderItemTbl (
+    id                 serial PRIMARY KEY,
+    item_id            INT NOT NULL REFERENCES itemTbl ( id ),
+    product_id         INT NOT NULL REFERENCES productTbl ( id ),
+    order_id           INT NOT NULL REFERENCES orderTbl ( id ),
+    discount           FLOAT NOT NULL,
+    quantity           INT NOT NULL,
+    delivery_address_id    INT NOT NULL REFERENCES addressTbl ( id ),
+    sender_address_id      INT NOT NULL REFERENCES addressTbl ( id ),
+    in_time_for        DATE NOT NULL -- This is the last acceptable delivery date
+);
+
+
+CREATE TABLE if not exists serviceTbl (
+    id                 serial PRIMARY KEY,
+    type               VARCHAR ( 128 ) NOT NULL, -- Plotted, used extra markers, fancy stamps, etc.
+    data               VARCHAR ( 1024 ) NOT NULL, -- {data:url, location:(x,y)}
+    service_received   BOOLEAN DEFAULT FALSE -- Meant to indicate whether the service has been planned for yet
+);
+
+
 CREATE TABLE if not exists transactionTbl (
     id                 serial PRIMARY KEY,
     user_id            INT NOT NULL REFERENCES usuarioTbl ( id ),
@@ -80,6 +106,8 @@ CREATE TABLE if not exists transactionTbl (
     content            VARCHAR ( 50 ) -- brief description of transaction, e.g. reason for refund, cancellation, failure, etc.
 );
 
+-----------------------------------------------
+-- Product/service-related Tables
 
 CREATE TABLE if not exists itemTbl (
     id                 serial PRIMARY KEY,
@@ -90,26 +118,12 @@ CREATE TABLE if not exists itemTbl (
     discount           FLOAT,
     price              FLOAT,
     quantity           INT NOT NULL, -- total quantity
-    sold               INT NOT NULL, -- total claimed
-    defective          INT NOT NULL, -- total unusable due to defects or failed processing
+    sold               INT DEFAULT 0, -- total claimed
+    defective          INT DEFAULT 0, -- total unusable due to defects or failed processing
     available          INT NOT NULL, -- total available = quantity - sold - defective
     created            TIMESTAMP NOT NULL,
     updated            TIMESTAMP,
     updated_by         INT REFERENCES usuarioTbl ( id )
-);
-
-
-CREATE TABLE if not exists orderItemTbl (
-    id                 serial PRIMARY KEY,
-    item_id            INT NOT NULL REFERENCES itemTbl ( id ),
-    product_id         INT NOT NULL REFERENCES productTbl ( id ),
-    order_id           INT NOT NULL REFERENCES orderTbl ( id ),
-    discount           FLOAT NOT NULL,
-    quantity           INT NOT NULL,
-    service_id         INT NOT NULL REFERENCES serviceTbl ( id ),
-    delivery_address_id    INT NOT NULL REFERENCES addressTbl ( id ),
-    sender_address_id      INT NOT NULL REFERENCES addressTbl ( id ),
-    in_time_for        DATE NOT NULL -- This is the last acceptable delivery date
 );
 
 
@@ -134,21 +148,14 @@ CREATE TABLE if not exists supplierTbl (
     supplier_url       VARCHAR ( 256 ) NOT NULL,
     summary            VARCHAR ( 256 ) NOT NULL,
     created            TIMESTAMP NOT NULL,
-    updated            TIMESTAMP
-);
-
-
-CREATE TABLE if not exists serviceTbl (
-    id                 serial PRIMARY KEY,
-    type               VARCHAR ( 32 ) NOT NULL, -- Plotted, used extra markers, fancy stamps, etc.
-    data_url           VARCHAR ( 256 ) NOT NULL,
-    location           VARCHAR ( 8 ) NOT NULL, -- X Y coordinate on sheet, in pixels, e.g. 1200 across by 1456 pixels high
-    service_received   BOOLEAN DEFAULT FALSE -- Meant to indicate whether the service has been planned for yet
+    updated            TIMESTAMP,
+    updated_by         INT NOT NULL
 );
 
 
 CREATE TABLE if not exists categoryTbl (
     id                 serial PRIMARY KEY,
-    parent_id          INT REFERENCES categoryTbl ( id ),
+    parent_id          INT NOT NULL REFERENCES categoryTbl ( id ),
     title              VARCHAR ( 32 ) NOT NULL
 );
+INSERT INTO categoryTbl (id, parent_id, title) VALUES (-1,-1,'No Parent');
