@@ -52,6 +52,20 @@ CREATE TABLE if not exists walletTbl (
     card_id            INT NOT NULL REFERENCES cardTbl ( id )
 );
 
+
+CREATE TABLE if not exists transactionTbl (
+    id                 serial PRIMARY KEY,
+    user_id            INT NOT NULL REFERENCES usuarioTbl ( id ),
+    order_id           INT NOT NULL REFERENCES orderTbl ( id ),
+    type               VARCHAR ( 10 ) NOT NULL, -- inventory order, sale payment, sale refund, other?
+    mode               VARCHAR ( 10 ) NOT NULL, -- CC, paypal, stripe, venmo, etc.
+    status             VARCHAR ( 10 ) NOT NULL, -- new, cancelled, failed, pending, declined, complete
+    created            TIMESTAMP NOT NULL,
+    updated            TIMESTAMP,
+    content            VARCHAR ( 50 ) -- brief description of transaction, e.g. reason for refund, cancellation, failure, etc.
+);
+
+
 -----------------------------------------------
 -- Order-related Tables
 
@@ -87,24 +101,12 @@ CREATE TABLE if not exists orderItemTbl (
 
 
 CREATE TABLE if not exists serviceTbl (
-    id                 serial PRIMARY KEY,
+    order_item_id      INT NOT NULL, -- REFERENCES orderItemIbl -- One order_item may have multiple services
     type               VARCHAR ( 128 ) NOT NULL, -- Plotted, used extra markers, fancy stamps, etc.
     data               VARCHAR ( 1024 ) NOT NULL, -- {data:url, location:(x,y)}
     service_received   BOOLEAN DEFAULT FALSE -- Meant to indicate whether the service has been planned for yet
 );
 
-
-CREATE TABLE if not exists transactionTbl (
-    id                 serial PRIMARY KEY,
-    user_id            INT NOT NULL REFERENCES usuarioTbl ( id ),
-    order_id           INT NOT NULL REFERENCES orderTbl ( id ),
-    type               VARCHAR ( 10 ) NOT NULL, -- inventory order, sale payment, sale refund, other?
-    mode               VARCHAR ( 10 ) NOT NULL, -- CC, paypal, stripe, venmo, etc.
-    status             VARCHAR ( 10 ) NOT NULL, -- new, cancelled, failed, pending, declined, complete
-    created            TIMESTAMP NOT NULL,
-    updated            TIMESTAMP,
-    content            VARCHAR ( 50 ) -- brief description of transaction, e.g. reason for refund, cancellation, failure, etc.
-);
 
 -----------------------------------------------
 -- Product/service-related Tables
