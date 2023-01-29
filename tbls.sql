@@ -111,7 +111,7 @@ CREATE TABLE if not exists transactionTbl (
 
 CREATE TABLE if not exists itemTbl (
     id                 serial PRIMARY KEY,
-    supplier_id        INT NOT NULL REFERENCES supplierTbl ( id ),
+    supplier_id        INT NOT NULL, -- REFERENCES supplierTbl ( id ),
     sku                VARCHAR ( 30 ) NOT NULL,
     restock_url        VARCHAR ( 256 ) NOT NULL,
     msrp               FLOAT NOT NULL,
@@ -123,7 +123,7 @@ CREATE TABLE if not exists itemTbl (
     available          INT NOT NULL, -- total available = quantity - sold - defective
     created            TIMESTAMP NOT NULL,
     updated            TIMESTAMP,
-    updated_by         INT REFERENCES usuarioTbl ( id )
+    updated_by         INT -- REFERENCES usuarioTbl ( id )
 );
 
 

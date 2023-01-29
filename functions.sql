@@ -2,8 +2,8 @@
 -- Populates serviceTbl
 
 CREATE OR REPLACE FUNCTION addService (
-    type               VARCHAR ( 128 ) NOT NULL, -- Plotted, uses extra markers, fancy stamps, etc.
-    data           VARCHAR ( 1024 ) NOT NULL -- {data:url}
+    type               VARCHAR ( 128 ), -- Plotted, uses extra markers, fancy stamps, etc.
+    data           VARCHAR ( 1024 ) -- {data:url}
 ) RETURNS VOID AS $$
 
 BEGIN
@@ -17,7 +17,7 @@ BEGIN
     );
 
 END;
-$$ language plpgsql
+$$ language plpgsql;
 
 
 ------------------------------------------------------
@@ -43,6 +43,8 @@ CREATE OR REPLACE FUNCTION addItemProduct (
     content            VARCHAR
 ) RETURNS VOID AS $$
 
+DECLARE
+    item_id INTEGER;
 BEGIN
     SELECT addItem (
         supplier_id,
@@ -67,7 +69,7 @@ BEGIN
     );
 
 END;
-$$ language plpgsql
+$$ language plpgsql;
 
 
 ------------------------------------------------------
@@ -84,6 +86,8 @@ CREATE OR REPLACE FUNCTION addItem (
     updated_by         INT
 ) RETURNS INT AS $$
 
+DECLARE
+    item_id            INTEGER;
 BEGIN
     INSERT INTO itemTbl (
         supplier_id,
@@ -114,7 +118,7 @@ BEGIN
     RETURN item_id;
 
 END;
-$$ language plpgsql
+$$ language plpgsql;
 
 
 ------------------------------------------------------
@@ -128,7 +132,7 @@ CREATE OR REPLACE FUNCTION addProduct (
     type               VARCHAR,
     image_url          VARCHAR,
     thumbnail_url      VARCHAR,
-    content            VARCHAR 
+    content            VARCHAR
 ) RETURNS VOID AS $$
 
 BEGIN
@@ -158,7 +162,7 @@ BEGIN
     );
 
 END;
-$$ language plpgsql
+$$ language plpgsql;
 
 
 ------------------------------------------------------
@@ -168,7 +172,7 @@ CREATE OR REPLACE FUNCTION addSupplier (
     brand              VARCHAR ( 32 ),
     supplier_url       VARCHAR ( 256 ),
     summary            VARCHAR ( 256 ),
-    updated_by         INT,
+    updated_by         INT
 ) RETURNS VOID AS $$
 
 BEGIN
@@ -186,11 +190,11 @@ BEGIN
         summary,
         CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP,
-        COALESCE ( updated_by, 0 ) 
+        COALESCE ( updated_by, 0 )
     );
 
 END;
-$$ language plpgsql
+$$ language plpgsql;
 
 
 ------------------------------------------------------
@@ -212,7 +216,7 @@ BEGIN
     );
 
 END;
-$$ language plpgsql
+$$ language plpgsql;
 
 
 ------------------------------------------------------
